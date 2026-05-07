@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@auth/prisma-adapter/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/next-auth/package.json'\\).version\\)\")",
+      "Bash(node -e \"const p = require\\('./node_modules/@prisma/client/package.json'\\); console.log\\(p.version, p.main, p.exports?.['.']?.default?.default\\)\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\c4cha\\\\OneDrive\\\\Desktop\\\\Nextjs\\\\codereviewerai\\\\src\\\\lib\" \"C:\\\\Users\\\\c4cha\\\\OneDrive\\\\Desktop\\\\Nextjs\\\\codereviewerai\\\\src\\\\workers\" \"C:\\\\Users\\\\c4cha\\\\OneDrive\\\\Desktop\\\\Nextjs\\\\codereviewerai\\\\src\\\\app\\\\api\\\\webhooks\\\\github\" \"C:\\\\Users\\\\c4cha\\\\OneDrive\\\\Desktop\\\\Nextjs\\\\codereviewerai\\\\src\\\\app\\\\api\\\\auth\\\\[...nextauth]\" 2>&1)",
+      "Bash(postgres --version)",
+      "Bash(psql --version)",
+      "Bash(redis-server --version)",
+      "Bash(redis-cli --version)"
+    ]
+  }
+}
