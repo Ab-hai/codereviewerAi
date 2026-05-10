@@ -33,15 +33,55 @@ export async function POST(request: NextRequest): Promise<Response> {
     return Response.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  if (event !== "pull_request") {
-    return Response.json({ ok: true, skipped: true });
-  }
-
   let payload: Record<string, unknown>;
   try {
     payload = JSON.parse(body) as Record<string, unknown>;
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  // ── Handle GitHub App installation events ──────────────────────────────────
+  // When a user installs the app on a repo, auto-add it to our DB
+  if (event === "installation" || event === "installation_repositories") {
+    const action = payload.action as string;
+    const installation = payload.installation as Record<string, unknown>;
+    const installationId = installation.id as number;
+    const sender = payload.sender as Record<string, unknown>;
+    const senderLogin = sender.login as string;
+
+    const repos =
+      action === "created"
+        ? (payload.repositories as Array<{ name: string; full_name: string }>)
+        : (payload.repositories_added as Array<{ name: string; full_name: string }>);
+
+    if (repos?.length) {
+      // Find the user in our DB by GitHub username
+      const user = await prisma.user.findFirst({
+        where: { accounts: { some: { providerAccountId: String(installation.app_id ?? senderLogin) } } },
+      });
+
+      for (const repo of repos) {
+        const [repoOwner, repoName] = repo.full_name.split("/");
+        await prisma.repo.upsert({
+          where: { repoOwner_repoName: { repoOwner, repoName } },
+          create: {
+            repoOwner,
+            repoName,
+            webhookId: installationId,
+            active: true,
+            userId: user?.id ?? "",
+          },
+          update: { active: true, webhookId: installationId },
+        });
+      }
+    }
+
+    return Response.json({ ok: true });
+  }
+
+  // ── Handle pull_request events ─────────────────────────────────────────────
+  if (event !== "pull_request") {
+    return Response.json({ ok: true, skipped: true });
   }
 
   const action = payload.action as string;
@@ -59,7 +99,6 @@ export async function POST(request: NextRequest): Promise<Response> {
   const prTitle = pr.title as string;
   const installationId = installation.id as number;
 
-  // Look up the repo in our DB
   const repo = await prisma.repo.findUnique({
     where: { repoOwner_repoName: { repoOwner, repoName } },
   });
@@ -68,27 +107,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     return Response.json({ ok: true, skipped: true });
   }
 
-  // Create a review record
   const review = await prisma.review.create({
-    data: {
-      repoId: repo.id,
-      prNumber,
-      prTitle,
-      status: "PENDING",
-    },
+    data: { repoId: repo.id, prNumber, prTitle, status: "PENDING" },
   });
 
-  // Drop the job into the queue — respond 200 immediately
   await reviewQueue.add(
     `review:${repoOwner}/${repoName}#${prNumber}`,
-    {
-      repoOwner,
-      repoName,
-      prNumber,
-      prTitle,
-      installationId,
-      repoId: repo.id,
-    },
+    { repoOwner, repoName, prNumber, prTitle, installationId, repoId: repo.id },
     { jobId: `review-${review.id}` }
   );
 
