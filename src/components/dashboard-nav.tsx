@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { GitPullRequest, BookOpen, LogOut } from "lucide-react";
+import { GitPullRequest, LogOut } from "lucide-react";
 import type { DefaultSession } from "next-auth";
 
 type Props = {
@@ -16,52 +14,78 @@ export function DashboardNav({ user }: Props) {
   const pathname = usePathname();
 
   const navItems = [
-    { href: "/dashboard", label: "Reviews", icon: <GitPullRequest className="h-4 w-4" /> },
-    { href: "/dashboard/repos", label: "Repos", icon: <BookOpen className="h-4 w-4" /> },
+    { href: "/dashboard", label: "Reviews" },
+    { href: "/dashboard/repos", label: "Repos" },
   ];
 
+  const initials = user?.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) ?? "U";
+
   return (
-    <header className="border-b border-zinc-800 bg-zinc-950 sticky top-0 z-10">
-      <div className="container max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-40 h-14 border-b border-[#1f1f23] bg-[#09090b]/80 backdrop-blur-md">
+      <div className="max-w-[1100px] mx-auto px-7 h-full flex items-center gap-4">
         {/* Logo */}
-        <Link href="/dashboard" className="font-semibold text-zinc-100 flex items-center gap-2">
-          <GitPullRequest className="h-5 w-5 text-violet-400" />
-          CodeReviewer AI
+        <Link href="/dashboard" className="flex items-center gap-2 mr-2">
+          <div className="w-6 h-6 rounded-md bg-violet-600 flex items-center justify-center shadow-[0_0_10px_rgba(124,58,237,0.4)]">
+            <GitPullRequest className="h-3.5 w-3.5 text-white" />
+          </div>
+          <span className="font-semibold text-sm text-zinc-100">CodeReviewer AI</span>
         </Link>
 
-        {/* Nav */}
+        {/* Nav pills */}
         <nav className="flex items-center gap-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                pathname === item.href
-                  ? "bg-zinc-800 text-zinc-100"
-                  : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
-              }`}
-            >
-              {item.icon}
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-zinc-900 border border-[#27272a] text-zinc-100"
+                    : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* User */}
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.image ?? ""} />
-            <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
-          </Avatar>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-zinc-400 hover:text-zinc-100"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* ⌘K badge */}
+        <kbd className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md border border-[#27272a] bg-zinc-900 font-mono text-[11px] text-zinc-500">
+          <span>⌘</span><span>K</span>
+        </kbd>
+
+        {/* Avatar */}
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold text-white select-none"
+          style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
+          title={user?.name ?? ""}
+        >
+          {user?.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={user.image} alt={user.name ?? ""} className="w-full h-full rounded-full object-cover" />
+          ) : (
+            initials
+          )}
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-colors"
+          title="Sign out"
+        >
+          <LogOut className="h-4 w-4" />
+        </button>
       </div>
     </header>
   );

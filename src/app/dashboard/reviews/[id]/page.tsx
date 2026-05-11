@@ -1,28 +1,43 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft, FileCode, AlertTriangle, Lightbulb, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import {
+  ArrowLeft, GitPullRequest, Clock, FileCode,
+  ShieldAlert, AlertTriangle, Lightbulb,
+  CheckCircle2, ExternalLink, RotateCcw, User, GitBranch,
+} from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
 
-const SEVERITY_CONFIG = {
+const SEVERITY = {
   CRITICAL: {
     label: "Critical",
-    icon: <ShieldAlert className="h-4 w-4" />,
-    class: "bg-red-500/10 text-red-400 border-red-500/20",
+    icon: <ShieldAlert className="h-3 w-3" />,
+    pill: "bg-red-500/10 text-red-300 border-red-500/30",
+    dot: "bg-red-400",
+    row: "border-red-500/10",
   },
   WARNING: {
     label: "Warning",
-    icon: <AlertTriangle className="h-4 w-4" />,
-    class: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+    icon: <AlertTriangle className="h-3 w-3" />,
+    pill: "bg-yellow-500/10 text-yellow-300 border-yellow-500/30",
+    dot: "bg-yellow-400",
+    row: "border-yellow-500/10",
   },
   SUGGESTION: {
     label: "Suggestion",
-    icon: <Lightbulb className="h-4 w-4" />,
-    class: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    icon: <Lightbulb className="h-3 w-3" />,
+    pill: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+    dot: "bg-emerald-400",
+    row: "border-emerald-500/10",
   },
+};
+
+const STATUS_PILL: Record<string, string> = {
+  COMPLETED: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+  FAILED: "bg-red-500/10 text-red-300 border-red-500/30",
+  IN_PROGRESS: "bg-blue-500/10 text-blue-300 border-blue-500/30",
+  PENDING: "bg-zinc-500/10 text-zinc-400 border-zinc-500/30",
 };
 
 export default async function ReviewDetailPage({
@@ -40,100 +55,192 @@ export default async function ReviewDetailPage({
 
   if (!review) notFound();
 
-  // Group issues by file
-  const byFile = review.issues.reduce<
-    Record<string, typeof review.issues>
-  >((acc, issue) => {
-    if (!acc[issue.file]) acc[issue.file] = [];
-    acc[issue.file].push(issue);
-    return acc;
-  }, {});
+  const byFile = review.issues.reduce<Record<string, typeof review.issues>>(
+    (acc, issue) => {
+      if (!acc[issue.file]) acc[issue.file] = [];
+      acc[issue.file].push(issue);
+      return acc;
+    },
+    {}
+  );
 
   const critical = review.issues.filter((i) => i.severity === "CRITICAL").length;
   const warnings = review.issues.filter((i) => i.severity === "WARNING").length;
   const suggestions = review.issues.filter((i) => i.severity === "SUGGESTION").length;
+  const prUrl = `https://github.com/${review.repo.repoOwner}/${review.repo.repoName}/pull/${review.prNumber}`;
 
   return (
     <div className="flex flex-col gap-6">
       {/* Back */}
       <Link
         href="/dashboard"
-        className="flex items-center gap-2 text-zinc-400 hover:text-zinc-100 text-sm w-fit transition-colors"
+        className="flex items-center gap-1.5 text-zinc-500 hover:text-zinc-200 text-sm w-fit transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Reviews
+        Reviews
       </Link>
 
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <p className="text-sm text-zinc-500">
-          {review.repo.repoOwner}/{review.repo.repoName} · PR #{review.prNumber} ·{" "}
-          {formatDistanceToNow(new Date(review.createdAt))}
-        </p>
-        <h1 className="text-2xl font-bold text-zinc-100">{review.prTitle}</h1>
+      {/* Breadcrumb */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2 font-mono text-[12px] text-zinc-500 flex-wrap">
+          <GitPullRequest className="h-3.5 w-3.5" />
+          <span>{review.repo.repoOwner}/{review.repo.repoName}</span>
+          <span className="text-zinc-700">·</span>
+          <span>#{review.prNumber}</span>
+          <span className="text-zinc-700">·</span>
+          <GitBranch className="h-3.5 w-3.5" />
+          <span>main</span>
+          <span className="text-zinc-700">·</span>
+          <Clock className="h-3.5 w-3.5" />
+          <span>{formatDistanceToNow(new Date(review.createdAt))}</span>
+        </div>
 
-        {/* Summary badges */}
-        <div className="flex items-center gap-2 mt-1">
+        <h1 className="text-xl font-semibold text-zinc-100 leading-snug">{review.prTitle}</h1>
+
+        {/* Action row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border ${STATUS_PILL[review.status] ?? STATUS_PILL.PENDING}`}>
+            {review.status.replace("_", " ")}
+          </span>
           {critical > 0 && (
-            <span className="text-xs px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
-              {critical} critical
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border bg-red-500/10 text-red-300 border-red-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400" />{critical} critical
             </span>
           )}
           {warnings > 0 && (
-            <span className="text-xs px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
-              {warnings} warnings
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border bg-yellow-500/10 text-yellow-300 border-yellow-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />{warnings} warnings
             </span>
           )}
           {suggestions > 0 && (
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              {suggestions} suggestions
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border bg-emerald-500/10 text-emerald-300 border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{suggestions} suggestions
             </span>
           )}
-          {review.issues.length === 0 && (
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              ✓ No issues found
-            </span>
-          )}
+          <div className="flex-1" />
+          <a
+            href={prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-sm transition-colors"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            View on GitHub
+          </a>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-sm transition-colors">
+            <RotateCcw className="h-3.5 w-3.5" />
+            Re-run
+          </button>
         </div>
       </div>
 
-      {/* Issues by file */}
-      {Object.entries(byFile).map(([file, issues]) => (
-        <div key={file} className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-            <FileCode className="h-4 w-4 text-zinc-500" />
-            <code className="text-violet-300">{file}</code>
+      {/* Meta strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-px rounded-[14px] border border-[#1f1f23] overflow-hidden bg-[#1f1f23]">
+        {[
+          { label: "Author", value: review.repo.repoOwner, icon: <User className="h-3.5 w-3.5" /> },
+          { label: "Files changed", value: Object.keys(byFile).length.toString(), icon: <FileCode className="h-3.5 w-3.5" /> },
+          { label: "Issues", value: review.issues.length.toString(), icon: <ShieldAlert className="h-3.5 w-3.5" /> },
+          { label: "Time", value: formatDistanceToNow(new Date(review.createdAt)), icon: <Clock className="h-3.5 w-3.5" /> },
+          { label: "Reviewed by", value: "Llama 3.3 70B", icon: <GitPullRequest className="h-3.5 w-3.5" /> },
+        ].map((m) => (
+          <div key={m.label} className="flex flex-col gap-1 px-4 py-3 bg-[#0f0f12]">
+            <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-zinc-600">
+              {m.icon}
+              {m.label}
+            </div>
+            <p className="font-mono text-sm text-zinc-200">{m.value}</p>
           </div>
+        ))}
+      </div>
 
-          {issues.map((issue) => {
-            const config = SEVERITY_CONFIG[issue.severity];
+      {/* Empty state */}
+      {review.issues.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+          <div className="w-16 h-16 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 flex items-center justify-center">
+            <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+          </div>
+          <p className="text-zinc-100 font-semibold text-lg">All clean.</p>
+          <p className="text-zinc-500 text-sm max-w-xs">
+            No issues found in this PR. The code looks good!
+          </p>
+        </div>
+      ) : (
+        /* Issues by file */
+        <div className="flex flex-col gap-4">
+          {Object.entries(byFile).map(([file, issues]) => {
+            const fCritical = issues.filter((i) => i.severity === "CRITICAL").length;
+            const fWarnings = issues.filter((i) => i.severity === "WARNING").length;
+            const fSuggestions = issues.filter((i) => i.severity === "SUGGESTION").length;
+
             return (
-              <Card key={issue.id} className="bg-zinc-900 border-zinc-800 p-4">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-start gap-3">
-                    <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border flex-shrink-0 mt-0.5 ${config.class}`}>
-                      {config.icon}
-                      {config.label}
-                    </span>
-                    {issue.line && (
-                      <span className="text-xs text-zinc-500 mt-0.5">Line {issue.line}</span>
+              <div key={file} className="rounded-[14px] border border-[#1f1f23] overflow-hidden">
+                {/* File header */}
+                <div className="flex items-center justify-between px-4 py-2.5 bg-[#111114] border-b border-[#1f1f23]">
+                  <div className="flex items-center gap-2">
+                    <FileCode className="h-3.5 w-3.5 text-zinc-500" />
+                    <code className="font-mono text-[12px] text-violet-300">{file}</code>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {fCritical > 0 && (
+                      <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-300 border border-red-500/30">
+                        {fCritical} critical
+                      </span>
+                    )}
+                    {fWarnings > 0 && (
+                      <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-300 border border-yellow-500/30">
+                        {fWarnings} warnings
+                      </span>
+                    )}
+                    {fSuggestions > 0 && (
+                      <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                        {fSuggestions} suggestions
+                      </span>
                     )}
                   </div>
-                  <p className="text-zinc-200 text-sm">{issue.message}</p>
-                  {issue.suggestion && (
-                    <div className="mt-1 pl-3 border-l-2 border-violet-500/30">
-                      <p className="text-xs text-zinc-400">
-                        <span className="text-violet-400 font-medium">Suggestion: </span>
-                        {issue.suggestion}
-                      </p>
-                    </div>
-                  )}
                 </div>
-              </Card>
+
+                {/* Issue rows */}
+                <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 divide-y divide-[#1f1f23]">
+                  {issues.map((issue) => {
+                    const s = SEVERITY[issue.severity];
+                    return (
+                      <div key={issue.id} className="px-4 py-4 flex flex-col gap-3">
+                        {/* Severity + line */}
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] border ${s.pill}`}>
+                            {s.icon}
+                            {s.label}
+                          </span>
+                          {issue.line && (
+                            <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-[#27272a]">
+                              line {issue.line}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Message */}
+                        <p className="text-sm text-zinc-200 leading-relaxed">{issue.message}</p>
+
+                        {/* Suggested fix */}
+                        {issue.suggestion && (
+                          <div className="border-l-2 border-violet-500 pl-3 py-2 bg-gradient-to-r from-violet-500/[.06] to-transparent rounded-r-lg">
+                            <p className="font-mono text-[10px] uppercase tracking-[.08em] text-violet-300 mb-1.5">
+                              Suggested Fix
+                            </p>
+                            <p className="font-mono text-[12px] text-zinc-300 italic leading-relaxed">
+                              {issue.suggestion}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
-      ))}
+      )}
     </div>
   );
 }

@@ -11,9 +11,9 @@ export default async function DashboardLayout({
   if (!session) redirect("/login");
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#09090b]">
       <DashboardNav user={session.user} />
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
+      <main className="flex-1 max-w-[1100px] w-full mx-auto px-7 py-8">
         {children}
       </main>
     </div>
