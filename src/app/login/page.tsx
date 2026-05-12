@@ -16,9 +16,6 @@ export default function LoginPage() {
     <main className="relative flex items-center justify-center min-h-screen bg-[#09090b] overflow-hidden">
       {/* Grid background */}
       <div className="absolute inset-0 bg-grid grid-fade pointer-events-none" />
-      {/* Violet glow */}
-      <div className="absolute inset-0 violet-glow pointer-events-none" />
-
       <div className="relative z-10 w-full max-w-[400px] mx-4">
         <div className="rounded-[14px] border border-[#27272a] bg-gradient-to-b from-[#131316] to-[#18181b] p-8 shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
           {/* Logo tile */}

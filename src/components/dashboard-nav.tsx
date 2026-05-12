@@ -59,11 +59,6 @@ export function DashboardNav({ user }: Props) {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* ⌘K badge */}
-        <kbd className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md border border-[#27272a] bg-zinc-900 font-mono text-[11px] text-zinc-500">
-          <span>⌘</span><span>K</span>
-        </kbd>
-
         {/* Avatar */}
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold text-white select-none"

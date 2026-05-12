@@ -30,9 +30,6 @@ export default function LandingPage() {
       <section className="relative flex flex-col items-center justify-center pt-32 pb-24 px-6 text-center overflow-hidden">
         {/* Grid background */}
         <div className="absolute inset-0 bg-grid grid-fade pointer-events-none" />
-        {/* Violet glow */}
-        <div className="absolute inset-0 violet-glow pointer-events-none" />
-
         <div className="relative z-10 flex flex-col items-center gap-6 max-w-3xl mx-auto">
           {/* Eyebrow */}
           <p className="font-mono text-[11px] uppercase tracking-[.1em] text-violet-400">— AI-powered code review</p>
@@ -74,8 +71,8 @@ export default function LandingPage() {
         </div>
 
         {/* ── Faux PR Preview ── */}
-        <div className="relative z-10 mt-16 w-full max-w-4xl mx-auto">
-          <div className="rounded-[14px] border border-[#27272a] bg-gradient-to-b from-[#131316] to-[#18181b] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]">
+        <div className="relative z-10 mt-16 w-full max-w-4xl mx-auto text-left">
+          <div className="rounded-[14px] border border-[#27272a] bg-gradient-to-b from-[#131316] to-[#18181b] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.04)]">
             {/* Window chrome */}
             <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1f1f23] bg-[#111114]">
               <span className="w-3 h-3 rounded-full bg-red-500/70" />
@@ -111,7 +108,7 @@ export default function LandingPage() {
                 ))}
               </div>
               {/* Issue column */}
-              <div className="p-4 flex flex-col gap-3">
+              <div className="p-4 flex flex-col gap-3 text-left">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] border bg-red-500/10 text-red-300 border-red-500/30">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
