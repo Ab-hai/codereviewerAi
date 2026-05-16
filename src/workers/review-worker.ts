@@ -11,14 +11,17 @@ import type { ReviewJobData } from "@/lib/queue";
 const worker = new Worker<ReviewJobData>(
   "pr-review",
   async (job) => {
-    const { repoOwner, repoName, prNumber, prTitle, installationId, repoId } =
+    const { repoOwner, repoName, prNumber, prTitle, installationId, repoId, reviewId } =
       job.data;
 
     console.log(`[worker] Starting review for ${repoOwner}/${repoName}#${prNumber}`);
 
     // Find the pending review record for this job
+    // If reviewId is provided (rerun / manual trigger), target that exact record
     const review = await prisma.review.findFirst({
-      where: { repoId, prNumber, status: "PENDING" },
+      where: reviewId
+        ? { id: reviewId, status: "PENDING" }
+        : { repoId, prNumber, status: "PENDING" },
       orderBy: { createdAt: "desc" },
     });
 

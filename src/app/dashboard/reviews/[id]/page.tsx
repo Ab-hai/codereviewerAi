@@ -5,9 +5,10 @@ import Link from "next/link";
 import {
   ArrowLeft, GitPullRequest, Clock, FileCode,
   ShieldAlert, AlertTriangle, Lightbulb,
-  CheckCircle2, ExternalLink, RotateCcw, User, GitBranch,
+  CheckCircle2, ExternalLink, User, GitBranch,
 } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
+import { RerunButton } from "@/components/rerun-button";
 
 const SEVERITY = {
   CRITICAL: {
@@ -87,9 +88,13 @@ export default async function ReviewDetailPage({
           <span>{review.repo.repoOwner}/{review.repo.repoName}</span>
           <span className="text-zinc-700">·</span>
           <span>#{review.prNumber}</span>
-          <span className="text-zinc-700">·</span>
-          <GitBranch className="h-3.5 w-3.5" />
-          <span>main</span>
+          {review.prBranch && (
+            <>
+              <span className="text-zinc-700">·</span>
+              <GitBranch className="h-3.5 w-3.5" />
+              <span>{review.prBranch}</span>
+            </>
+          )}
           <span className="text-zinc-700">·</span>
           <Clock className="h-3.5 w-3.5" />
           <span>{formatDistanceToNow(new Date(review.createdAt))}</span>
@@ -127,17 +132,14 @@ export default async function ReviewDetailPage({
             <ExternalLink className="h-3.5 w-3.5" />
             View on GitHub
           </a>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-sm transition-colors">
-            <RotateCcw className="h-3.5 w-3.5" />
-            Re-run
-          </button>
+          <RerunButton reviewId={review.id} />
         </div>
       </div>
 
       {/* Meta strip */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-px rounded-[14px] border border-[#1f1f23] overflow-hidden bg-[#1f1f23]">
         {[
-          { label: "Author", value: review.repo.repoOwner, icon: <User className="h-3.5 w-3.5" /> },
+          { label: "Author", value: review.prAuthor ?? review.repo.repoOwner, icon: <User className="h-3.5 w-3.5" /> },
           { label: "Files changed", value: Object.keys(byFile).length.toString(), icon: <FileCode className="h-3.5 w-3.5" /> },
           { label: "Issues", value: review.issues.length.toString(), icon: <ShieldAlert className="h-3.5 w-3.5" /> },
           { label: "Time", value: formatDistanceToNow(new Date(review.createdAt)), icon: <Clock className="h-3.5 w-3.5" /> },

@@ -114,10 +114,12 @@ export default async function DashboardPage() {
                         <span className="text-zinc-700">·</span>
                         #{review.prNumber}
                       </span>
-                      <span className="font-mono text-[11px] text-zinc-600 flex items-center gap-1">
-                        <GitBranch className="h-3 w-3" />
-                        main
-                      </span>
+                      {review.prBranch && (
+                        <span className="font-mono text-[11px] text-zinc-600 flex items-center gap-1">
+                          <GitBranch className="h-3 w-3" />
+                          {review.prBranch}
+                        </span>
+                      )}
                     </div>
                     {/* Title */}
                     <p className="text-sm font-medium text-zinc-200 truncate">{review.prTitle}</p>

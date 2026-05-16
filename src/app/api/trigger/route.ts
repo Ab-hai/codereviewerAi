@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { reviewQueue } from "@/lib/queue";
+import { getInstallationOctokit } from "@/lib/github";
 
 // Parse a GitHub PR URL into its parts
 // e.g. https://github.com/owner/repo/pull/123
@@ -45,14 +46,32 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
   }
 
-  // Fetch PR title from GitHub
-  const ghRes = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}`,
-    { headers: { Authorization: `Bearer ${process.env.GITHUB_APP_PRIVATE_KEY}`, "X-GitHub-Api-Version": "2022-11-28" } }
-  );
-  const prTitle = ghRes.ok
-    ? ((await ghRes.json()) as { title: string }).title
-    : `PR #${prNumber}`;
+  if (!repoRecord.webhookId) {
+    return Response.json(
+      { error: "No GitHub App installation found for this repo." },
+      { status: 400 }
+    );
+  }
+
+  // Fetch real PR details via GitHub App installation auth
+  let prTitle = `PR #${prNumber}`;
+  let prAuthor: string | undefined;
+  let prBranch: string | undefined;
+
+  try {
+    const octokit = getInstallationOctokit(repoRecord.webhookId);
+    const { data: pr } = await octokit.pulls.get({
+      owner,
+      repo,
+      pull_number: prNumber,
+    });
+    prTitle = pr.title;
+    prAuthor = pr.user?.login ?? undefined;
+    prBranch = pr.head.ref;
+  } catch {
+    // Non-fatal: proceed with placeholder title if GitHub fetch fails
+    console.warn(`[trigger] Could not fetch PR details for ${owner}/${repo}#${prNumber}`);
+  }
 
   // Create review record
   const review = await prisma.review.create({
@@ -60,6 +79,8 @@ export async function POST(request: NextRequest): Promise<Response> {
       repoId: repoRecord.id,
       prNumber,
       prTitle,
+      prAuthor,
+      prBranch,
       status: "PENDING",
     },
   });
@@ -72,8 +93,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       repoName: repo,
       prNumber,
       prTitle,
-      installationId: repoRecord.webhookId ?? 0,
+      prAuthor,
+      prBranch,
+      installationId: repoRecord.webhookId,
       repoId: repoRecord.id,
+      reviewId: review.id,
     },
     { jobId: `review-${review.id}` }
   );

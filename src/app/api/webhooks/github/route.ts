@@ -97,6 +97,8 @@ export async function POST(request: NextRequest): Promise<Response> {
   const repoName = repository.name as string;
   const prNumber = pr.number as number;
   const prTitle = pr.title as string;
+  const prAuthor = (pr.user as Record<string, unknown>).login as string;
+  const prBranch = (pr.head as Record<string, unknown>).ref as string;
   const installationId = installation.id as number;
 
   const repo = await prisma.repo.findUnique({
@@ -108,7 +110,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   const review = await prisma.review.create({
-    data: { repoId: repo.id, prNumber, prTitle, status: "PENDING" },
+    data: { repoId: repo.id, prNumber, prTitle, prAuthor, prBranch, status: "PENDING" },
   });
 
   await reviewQueue.add(

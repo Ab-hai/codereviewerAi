@@ -83,6 +83,8 @@ model Review {
   repoId    String
   prNumber  Int
   prTitle   String
+  prAuthor  String?
+  prBranch  String?
   status    ReviewStatus  @default(PENDING)
   createdAt DateTime      @default(now())
   repo      Repo          @relation(fields: [repoId], references: [id], onDelete: Cascade)
