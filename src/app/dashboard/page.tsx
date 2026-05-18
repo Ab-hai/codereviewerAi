@@ -64,7 +64,7 @@ export default async function DashboardPage() {
         ].map((tab, i) => (
           <div
             key={tab.label}
-            className={`flex items-center gap-1.5 px-3 py-2 text-sm cursor-default border-b-2 -mb-px transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 text-sm cursor-pointer border-b-2 -mb-px transition-colors ${
               i === 0
                 ? "border-violet-500 text-zinc-100"
                 : "border-transparent text-zinc-500 hover:text-zinc-300"

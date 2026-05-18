@@ -29,7 +29,7 @@ export function RerunButton({ reviewId }: { reviewId: string }) {
     <button
       onClick={handleRerun}
       disabled={loading}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed text-zinc-300 text-sm transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer text-zinc-300 text-sm transition-colors"
     >
       {loading ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin" />

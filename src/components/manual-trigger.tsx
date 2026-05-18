@@ -39,7 +39,7 @@ export function ManualTrigger() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-all btn-glow"
+        className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 cursor-pointer text-white text-sm font-medium transition-all btn-glow"
       >
         <Zap className="h-3.5 w-3.5" />
         Trigger Review
@@ -90,14 +90,14 @@ export function ManualTrigger() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex-1 py-2 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-sm font-medium transition-colors"
+                className="flex-1 py-2 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 cursor-pointer text-zinc-300 text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white text-sm font-medium transition-all btn-glow"
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer text-white text-sm font-medium transition-all btn-glow"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
                 {loading ? "Running…" : "Run review"}

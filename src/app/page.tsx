@@ -19,7 +19,7 @@ export default function LandingPage() {
           </div>
           <button
             onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-            className="text-sm px-4 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+            className="text-sm px-4 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 cursor-pointer transition-colors"
           >
             Sign in
           </button>
@@ -50,12 +50,12 @@ export default function LandingPage() {
           <div className="flex items-center gap-3 mt-2">
             <button
               onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all btn-glow"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 cursor-pointer text-white font-medium text-sm transition-all btn-glow"
             >
               <GithubIcon />
               Continue with GitHub
             </button>
-            <button className="px-5 py-2.5 rounded-xl border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 font-medium text-sm transition-colors">
+            <button className="px-5 py-2.5 rounded-xl border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 cursor-pointer text-zinc-300 hover:text-zinc-100 font-medium text-sm transition-colors">
               View live demo
             </button>
           </div>
@@ -228,7 +228,7 @@ export default function LandingPage() {
 
           <button
             onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all btn-glow"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 cursor-pointer text-white font-medium text-sm transition-all btn-glow"
           >
             <GithubIcon />
             Get started free
@@ -246,9 +246,9 @@ export default function LandingPage() {
             <span className="font-mono text-[11px] text-zinc-600">© 2026 CodeReviewer AI</span>
           </div>
           <div className="flex items-center gap-6 font-mono text-[11px] text-zinc-600">
-            <a href="#" className="hover:text-zinc-400 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Terms</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">GitHub</a>
+            <a href="#" className="hover:text-zinc-400 cursor-pointer transition-colors">Privacy</a>
+            <a href="#" className="hover:text-zinc-400 cursor-pointer transition-colors">Terms</a>
+            <a href="#" className="hover:text-zinc-400 cursor-pointer transition-colors">GitHub</a>
           </div>
         </div>
       </footer>

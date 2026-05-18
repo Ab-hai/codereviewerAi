@@ -76,7 +76,7 @@ export function DashboardNav({ user }: Props) {
         {/* Logout */}
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-colors"
+          className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 cursor-pointer transition-colors"
           title="Sign out"
         >
           <LogOut className="h-4 w-4" />

@@ -127,7 +127,7 @@ export default async function ReviewDetailPage({
             href={prUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#27272a] bg-zinc-900 hover:bg-zinc-800 cursor-pointer text-zinc-300 text-sm transition-colors"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             View on GitHub
