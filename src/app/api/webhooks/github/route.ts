@@ -55,9 +55,11 @@ export async function POST(request: NextRequest): Promise<Response> {
         : (payload.repositories_added as Array<{ name: string; full_name: string }>);
 
     if (repos?.length) {
-      // Find the user in our DB by GitHub username
+      // Find the user in our DB by their GitHub numeric user ID
+      // NextAuth stores the GitHub user's numeric ID as providerAccountId
+      const senderId = String(sender.id as number);
       const user = await prisma.user.findFirst({
-        where: { accounts: { some: { providerAccountId: String(installation.app_id ?? senderLogin) } } },
+        where: { accounts: { some: { provider: "github", providerAccountId: senderId } } },
       });
 
       for (const repo of repos) {
